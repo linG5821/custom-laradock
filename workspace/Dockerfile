@@ -28,6 +28,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ARG CHANGE_SOURCE=false
 RUN if [ ${CHANGE_SOURCE} = true ]; then \
     # Change application source from deb.debian.org to aliyun source
+    sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
     sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
     sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
     sed -i 's/security-cdn.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list \
@@ -1181,6 +1182,16 @@ ARG INSTALL_GNU_PARALLEL=false
 
 RUN if [ ${INSTALL_GNU_PARALLEL} = true ]; then \
   apt-get -y install parallel \
+;fi
+
+###########################################################################
+# yaconf:
+###########################################################################
+USER root
+ARG INSTALL_YACONF
+RUN if [ ${INSTALL_YACONF} = true ]; then \
+    pecl install yaconf ; && \
+    echo "extension=yaconf.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini
 ;fi
 
 

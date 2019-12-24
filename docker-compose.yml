@@ -136,6 +136,7 @@ services:
           - INSTALL_SUPERVISOR=${WORKSPACE_INSTALL_SUPERVISOR}
           - INSTALL_FFMPEG=${WORKSPACE_INSTALL_FFMPEG}
           - INSTALL_GNU_PARALLEL=${WORKSPACE_INSTALL_GNU_PARALLEL}
+          - INSTALL_YACONF=${WORKSPACE_INSTALL_YACONF}
           - http_proxy
           - https_proxy
           - no_proxy
@@ -224,6 +225,12 @@ services:
         - "9000"
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
+        - "homestead.linde:172.20.0.1"
+        - "homestead.linde.fastapi:172.20.0.1"
+        - "homestead.hbsd:172.20.0.1"
+        - "homestead.watch:172.20.0.1"
+        - "homestead.watch.fastapi:172.20.0.1"
+        - "homestead.linde.cms:172.20.0.1"
       environment:
         - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
         - DOCKER_HOST=tcp://docker-in-docker:2375
