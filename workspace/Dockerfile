@@ -349,6 +349,8 @@ USER root
 ARG INSTALL_XDEBUG=false
 
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
+    apt-get update -yqq && \
+    pecl channel-update pecl.php.net && \
     # Load the xdebug extension only with phpunit commands
     apt-get install -y php${LARADOCK_PHP_VERSION}-xdebug && \
     sed -i 's/^;//g' /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-xdebug.ini \
