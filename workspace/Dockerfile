@@ -13,7 +13,6 @@
 #
 
 ARG LARADOCK_PHP_VERSION
-
 FROM laradock/workspace:2.6.1-${LARADOCK_PHP_VERSION}
 
 LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
@@ -235,6 +234,15 @@ RUN if [ ${INSTALL_WP_CLI} = true ]; then \
 ;fi
 
 ###########################################################################
+# BZ2:
+###########################################################################
+
+ARG INSTALL_BZ2=false
+RUN if [ ${INSTALL_BZ2} = true ]; then \
+  apt-get -y install php${LARADOCK_PHP_VERSION}-bz2 \
+;fi
+
+###########################################################################
 # SSH2:
 ###########################################################################
 
@@ -300,6 +308,16 @@ RUN if [ ${INSTALL_LDAP} = true ]; then \
 ;fi
 
 ###########################################################################
+# SMB:
+###########################################################################
+
+ARG INSTALL_SMB=false
+
+RUN if [ ${INSTALL_SMB} = true ]; then \
+    apt-get install -y smbclient php-smbclient coreutils \
+;fi
+
+###########################################################################
 # IMAP:
 ###########################################################################
 
@@ -342,6 +360,25 @@ COPY ./xdebug.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/xdebug.ini
 RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/xdebug.ini && \
     sed -i "s/xdebug.remote_enable=0/xdebug.remote_enable=1/" /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/xdebug.ini && \
     sed -i "s/xdebug.cli_color=0/xdebug.cli_color=1/" /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/xdebug.ini
+
+###########################################################################
+# pcov:
+###########################################################################
+
+USER root
+
+ARG INSTALL_PCOV=false
+
+RUN if [ ${INSTALL_PCOV} = true ]; then \
+  if [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ]; then \
+    if [ $(php -r "echo PHP_MINOR_VERSION;") != "0" ]; then \
+      pecl install pcov && \
+      echo "extension=pcov.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+      echo "pcov.enabled" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini \
+    ;fi \
+  ;fi \
+;fi
+
 
 ###########################################################################
 # Phpdbg:
@@ -756,6 +793,47 @@ RUN set -xe; \
     && echo 'aerospike.udf.lua_system_path=/usr/local/aerospike/lua' >> /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/aerospike.ini \
     && echo 'aerospike.udf.lua_user_path=/usr/local/aerospike/usr-lua' >> /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/aerospike.ini \
   ;fi
+
+###########################################################################
+# PHP OCI8:
+###########################################################################
+
+USER root
+ARG INSTALL_OCI8=false
+
+ENV LD_LIBRARY_PATH="/opt/oracle/instantclient_12_1"
+ENV OCI_HOME="/opt/oracle/instantclient_12_1"
+ENV OCI_LIB_DIR="/opt/oracle/instantclient_12_1"
+ENV OCI_INCLUDE_DIR="/opt/oracle/instantclient_12_1/sdk/include"
+ENV OCI_VERSION=12
+
+RUN if [ ${INSTALL_OCI8} = true ]; then \
+  # Install wget
+  apt-get update && apt-get install --no-install-recommends -y wget \
+  # Install Oracle Instantclient
+  && mkdir /opt/oracle \
+      && cd /opt/oracle \
+      && wget https://github.com/diogomascarenha/oracle-instantclient/raw/master/instantclient-basic-linux.x64-12.1.0.2.0.zip \
+      && wget https://github.com/diogomascarenha/oracle-instantclient/raw/master/instantclient-sdk-linux.x64-12.1.0.2.0.zip \
+      && unzip /opt/oracle/instantclient-basic-linux.x64-12.1.0.2.0.zip -d /opt/oracle \
+      && unzip /opt/oracle/instantclient-sdk-linux.x64-12.1.0.2.0.zip -d /opt/oracle \
+      && ln -s /opt/oracle/instantclient_12_1/libclntsh.so.12.1 /opt/oracle/instantclient_12_1/libclntsh.so \
+      && ln -s /opt/oracle/instantclient_12_1/libclntshcore.so.12.1 /opt/oracle/instantclient_12_1/libclntshcore.so \
+      && ln -s /opt/oracle/instantclient_12_1/libocci.so.12.1 /opt/oracle/instantclient_12_1/libocci.so \
+      && rm -rf /opt/oracle/*.zip \
+  # Install PHP extensions deps
+  && apt-get update \
+      && apt-get install --no-install-recommends -y \
+          libaio-dev && \
+  # Install PHP extensions
+  if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+    echo 'instantclient,/opt/oracle/instantclient_12_1/' | pecl install oci8-2.0.10; \
+  else \
+    echo 'instantclient,/opt/oracle/instantclient_12_1/' | pecl install oci8; \
+  fi \
+  && echo "extension=oci8.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini \
+  && php -m | grep -q 'oci8' \
+;fi
 
 ###########################################################################
 # PHP V8JS:
@@ -1188,12 +1266,42 @@ RUN if [ ${INSTALL_GNU_PARALLEL} = true ]; then \
 # yaconf:
 ###########################################################################
 USER root
+COPY yaconf/*.ini /usr/local/etc/yaconf/
 ARG INSTALL_YACONF
 RUN if [ ${INSTALL_YACONF} = true ]; then \
-    pecl install yaconf ; && \
-    echo "extension=yaconf.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini
+    pecl install yaconf && \
+    echo "extension=yaconf.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "yaconf.directory=/usr/local/etc/yaconf" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini \
 ;fi
 
+###########################################################################
+# SeasLog:
+###########################################################################
+USER root
+ARG INSTALL_SEASLOG
+RUN if [ ${INSTALL_SEASLOG} = true ]; then \
+    pecl install seaslog && \
+    echo "extension=seaslog.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "seaslog.default_basepath='/var/log'" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "seaslog.default_logger='default'" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "seaslog.default_datetime_format='Y-m-d H:i:s'" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "seaslog.default_template='%T | %L | %M'" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    echo "seaslog.level=6" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    mkdir /var/log/default \
+;fi
+
+# Bash Git Prompt
+###########################################################################
+
+ARG INSTALL_GIT_PROMPT=false
+
+COPY git-prompt.sh /tmp/git-prompt
+
+RUN if [ ${INSTALL_GIT_PROMPT} = true ]; then \
+    git clone https://github.com/magicmonty/bash-git-prompt.git /root/.bash-git-prompt --depth=1 && \
+    cat /tmp/git-prompt >> /root/.bashrc && \
+    rm /tmp/git-prompt \
+;fi
 
 ###########################################################################
 # Check PHP version:
