@@ -1273,7 +1273,8 @@ ARG INSTALL_YACONF
 RUN if [ ${INSTALL_YACONF} = true ]; then \
     pecl install yaconf && \
     echo "extension=yaconf.so" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
-    echo "yaconf.directory=/usr/local/etc/yaconf" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini \
+    echo "yaconf.directory=/usr/local/etc/yaconf" >> /etc/php/${LARADOCK_PHP_VERSION}/cli/php.ini && \
+    chmod 777 /usr/local/etc/yaconf \
 ;fi
 
 ###########################################################################
