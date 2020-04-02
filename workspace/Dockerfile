@@ -243,20 +243,7 @@ RUN if [ ${INSTALL_BZ2} = true ]; then \
 ;fi
 
 ###########################################################################
-# SSH2:
-###########################################################################
-
-USER root
-
-ARG INSTALL_SSH2=false
-
-RUN if [ ${INSTALL_SSH2} = true ]; then \
-  # Install the PHP SSH2 extension
-  apt-get -y install libssh2-1-dev php${LARADOCK_PHP_VERSION}-ssh2 \
-;fi
-
-###########################################################################
-# GMP:
+# GMP (GNU Multiple Precision):
 ###########################################################################
 
 USER root
@@ -267,6 +254,19 @@ ARG PHP_VERSION=${LARADOCK_PHP_VERSION}
 RUN if [ ${INSTALL_GMP} = true ]; then \
   # Install the PHP GMP extension
   apt-get -y install php${LARADOCK_PHP_VERSION}-gmp \
+;fi
+
+###########################################################################
+# SSH2:
+###########################################################################
+
+USER root
+
+ARG INSTALL_SSH2=false
+
+RUN if [ ${INSTALL_SSH2} = true ]; then \
+  # Install the PHP SSH2 extension
+  apt-get -y install libssh2-1-dev php${LARADOCK_PHP_VERSION}-ssh2 \
 ;fi
 
 ###########################################################################
@@ -588,10 +588,13 @@ ARG AST_VERSION=1.0.3
 ENV AST_VERSION ${AST_VERSION}
 
 RUN if [ ${INSTALL_AST} = true ]; then \
-    # Install AST extension
-    printf "\n" | pecl -q install ast-${AST_VERSION} && \
-    echo "extension=ast.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/ast.ini && \
-    phpenmod -v ${LARADOCK_PHP_VERSION} -s cli ast \
+    # AST extension requires PHP 7.0.0 or newer
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") != "5" ]; then \
+        # Install AST extension
+        printf "\n" | pecl -q install ast-${AST_VERSION} && \
+        echo "extension=ast.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/ast.ini && \
+        phpenmod -v ${LARADOCK_PHP_VERSION} -s cli ast \
+    ;fi \
 ;fi
 
 ###########################################################################
@@ -1240,6 +1243,26 @@ ARG INSTALL_FFMPEG=false
 
 RUN if [ ${INSTALL_FFMPEG} = true ]; then \
   apt-get -y install ffmpeg \
+;fi
+
+#####################################
+# wkhtmltopdf:
+#####################################
+
+USER root
+
+ARG INSTALL_WKHTMLTOPDF=false
+
+RUN if [ ${INSTALL_WKHTMLTOPDF} = true ]; then \
+   apt-get install -y \
+   libxrender1 \
+   libfontconfig1 \
+   libx11-dev \
+   libjpeg62 \
+   libxtst6 \
+   wget \
+   && wget https://github.com/h4cc/wkhtmltopdf-amd64/blob/master/bin/wkhtmltopdf-amd64?raw=true -O /usr/local/bin/wkhtmltopdf \
+   && chmod +x /usr/local/bin/wkhtmltopdf \
 ;fi
 
 ###########################################################################
