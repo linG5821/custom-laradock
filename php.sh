@@ -32,7 +32,7 @@ elif [ "$cmd" == "ep" ]; then
 elif [ "$cmd" == "en" ]; then
     action="exec nginx bash"
 fi
-cd /mnt/c/Projects/laradock
+cd /data/laradock
 if [ -n "$action" ]; then
     echo $action
     docker-compose $action
