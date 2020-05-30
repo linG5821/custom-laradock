@@ -41,7 +41,7 @@ IF "%cmd%"=="en" (
 )
 
 
-D:
+C:
 cd \Projects\laradock
 IF DEFINED action (
     call docker-compose %action%
