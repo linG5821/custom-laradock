@@ -1333,6 +1333,20 @@ RUN if [ ${INSTALL_SEASLOG} = true ]; then \
     mkdir /var/log/default \
 ;fi
 
+###########################################################################
+# PHP GRPC EXTENSION
+###########################################################################
+
+ARG INSTALL_PHPGRPC=false
+
+RUN if [ ${INSTALL_PHPGRPC} = true ]; then \
+    apt-get install zlib1g-dev && \
+    pecl install grpc && \
+    echo "extension=grpc.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/grpc.ini && \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/grpc.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-grpc.ini \
+    && php -m | grep -q 'grpc' \
+;fi
+
 # Bash Git Prompt
 ###########################################################################
 
