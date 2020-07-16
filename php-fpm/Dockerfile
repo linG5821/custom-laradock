@@ -915,6 +915,18 @@ RUN if [ ${INSTALL_PHPGRPC} = true ]; then \
 ;fi
 
 ###########################################################################
+# PHP PROTOBUF EXTENSION
+###########################################################################
+
+ARG INSTALL_PHPPROTOBUF=false
+
+RUN if [ ${INSTALL_PHPPROTOBUF} = true ]; then \
+    printf "\n" | pecl install -o -f protobuf \
+    && rm -rf /tmp/pear \
+    && docker-php-ext-enable protobuf \
+;fi
+
+###########################################################################
 # Check PHP version:
 ###########################################################################
 

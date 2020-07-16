@@ -8,7 +8,6 @@ if [ "$cmd" == "up" ]; then
     if [ -n "$target" ]; then
         action="up -d $target"
     fi
-    sudo service ssh restart
 elif [ "$cmd" == "build" ]; then
     action="up --build -d workspace php-fpm nginx redis"
     if [ -n "$target" ]; then
@@ -37,4 +36,3 @@ if [ -n "$action" ]; then
     echo $action
     docker-compose $action
 fi
-ifconfig

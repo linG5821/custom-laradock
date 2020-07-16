@@ -1347,6 +1347,19 @@ RUN if [ ${INSTALL_PHPGRPC} = true ]; then \
     && php -m | grep -q 'grpc' \
 ;fi
 
+###########################################################################
+# PHP PROTOBUF EXTENSION
+###########################################################################
+
+ARG INSTALL_PHPPROTOBUF=false
+
+RUN if [ ${INSTALL_PHPPROTOBUF} = true ]; then \
+    pecl install protobuf && \
+    echo "extension=protobuf.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/protobuf.ini && \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/protobuf.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-protobuf.ini \
+    && php -m | grep -q 'protobuf' \
+;fi
+
 # Bash Git Prompt
 ###########################################################################
 
