@@ -125,6 +125,9 @@ services:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - docker-in-docker:/certs/client
         - ./php-worker/supervisord.d:/etc/supervisord.d
+        - ./php-worker/supervisord.conf:/etc/supervisord.conf
+        - ./workspace/yaconf:/usr/local/etc/yaconf
+
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
         - "homestead.linde:172.20.0.1"
@@ -291,38 +294,6 @@ services:
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./php-worker/supervisord.d:/etc/supervisord.d
-      depends_on:
-        - workspace
-      extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
-      networks:
-        - backend
-### Laravel Horizon ############################################
-    laravel-horizon:
-      build:
-        context: ./laravel-horizon
-        args:
-          - CHANGE_SOURCE=${CHANGE_SOURCE}
-          - LARADOCK_PHP_VERSION=${PHP_VERSION}
-          - INSTALL_BZ2=${LARAVEL_HORIZON_INSTALL_BZ2}
-          - INSTALL_GD=${LARAVEL_HORIZON_INSTALL_GD}
-          - INSTALL_GMP=${LARAVEL_HORIZON_INSTALL_GMP}
-          - INSTALL_IMAGEMAGICK=${LARAVEL_HORIZON_INSTALL_IMAGEMAGICK}
-          - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
-          - INSTALL_ZIP_ARCHIVE=${LARAVEL_HORIZON_INSTALL_ZIP_ARCHIVE}
-          - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
-          - INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}
-          - INSTALL_SOCKETS=${LARAVEL_HORIZON_INSTALL_SOCKETS}
-          - INSTALL_YAML=${LARAVEL_HORIZON_INSTALL_YAML}
-          - INSTALL_CASSANDRA=${PHP_FPM_INSTALL_CASSANDRA}
-          - INSTALL_PHPREDIS=${LARAVEL_HORIZON_INSTALL_PHPREDIS}
-          - INSTALL_MONGO=${LARAVEL_HORIZON_INSTALL_MONGO}
-          - INSTALL_FFMPEG=${LARAVEL_HORIZON_INSTALL_FFMPEG}
-          - PUID=${LARAVEL_HORIZON_PUID}
-          - PGID=${LARAVEL_HORIZON_PGID}
-      volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-        - ./laravel-horizon/supervisord.d:/etc/supervisord.d
       depends_on:
         - workspace
       extra_hosts:
