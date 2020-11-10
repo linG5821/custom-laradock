@@ -43,6 +43,12 @@ RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
   pecl channel-update pecl.php.net && pecl install memcached mcrypt-1.0.1 mongodb && docker-php-ext-enable memcached mongodb \
 ;fi
 
+ARG TZ=UTC
+ENV TZ ${TZ}
+RUN apk add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone \
+    && apk del tzdata
+
 # Add a non-root user:
 ARG PUID=1000
 ENV PUID ${PUID}
