@@ -326,7 +326,7 @@ services:
 
 ### Redis ################################################
     redis:
-      build: ./redis
+      image: redis:latest
       volumes:
         - ${DATA_PATH_HOST}/redis:/data
       ports:

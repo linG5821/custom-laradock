@@ -15,8 +15,7 @@ RUN if [ ${CHANGE_SOURCE} = true ]; then \
 ARG TZ=UTC
 ENV TZ=${TZ}
 RUN apk add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone \
-    && apk del tzdata
+    && echo ${TZ} > /etc/timezone
 
 RUN apk update \
     && apk upgrade \
