@@ -13,7 +13,7 @@ RUN if [ ${CHANGE_SOURCE} = true ]; then \
 ;fi
 
 ARG TZ=UTC
-ENV TZ ${TZ}
+ENV TZ=${TZ}
 RUN apk add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone \
     && apk del tzdata

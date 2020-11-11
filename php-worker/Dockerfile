@@ -44,10 +44,9 @@ RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
 ;fi
 
 ARG TZ=UTC
-ENV TZ ${TZ}
-RUN apk add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone \
-    && apk del tzdata
+ENV TZ=${TZ}
+RUN apk --update add tzdata && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone
 
 # Add a non-root user:
 ARG PUID=1000
