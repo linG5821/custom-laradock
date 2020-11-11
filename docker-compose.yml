@@ -9,8 +9,6 @@ networks:
 volumes:
   redis:
     driver: ${VOLUMES_DRIVER}
-  docker-in-docker:
-    driver: ${VOLUMES_DRIVER}
 
 services:
 
@@ -19,13 +17,11 @@ services:
       image: aidong-backend.tencentcloudcr.com/aidong/php-workspace:1.0.0
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
-        - docker-in-docker:/certs/client
         - ./php-worker/supervisord.d:/etc/supervisord.d
         - ./php-worker/supervisord.conf:/etc/supervisord.conf
         - ./workspace/yaconf:/usr/local/etc/yaconf
 
       extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
         - "homestead.linde:172.20.0.1"
         - "homestead.linde.fastapi:172.20.0.1"
         - "homestead.hbsd:172.20.0.1"
@@ -39,15 +35,9 @@ services:
       tty: true
       environment:
         - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-        - DOCKER_HOST=tcp://docker-in-docker:2376
-        - DOCKER_TLS_VERIFY=1
-        - DOCKER_TLS_CERTDIR=/certs
-        - DOCKER_CERT_PATH=/certs/client
       networks:
         - frontend
         - backend
-      links:
-        - docker-in-docker
 
 ### PHP-FPM ##############################################
     php-fpm:
@@ -55,11 +45,9 @@ services:
       volumes:
         - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
-        - docker-in-docker:/certs/client
       expose:
         - "9000"
       extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
         - "homestead.linde:172.20.0.1"
         - "homestead.linde.fastapi:172.20.0.1"
         - "homestead.hbsd:172.20.0.1"
@@ -69,17 +57,11 @@ services:
         - "homestead.td:172.20.0.1"
       environment:
         - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-        - DOCKER_HOST=tcp://docker-in-docker:2376
-        - DOCKER_TLS_VERIFY=1
-        - DOCKER_TLS_CERTDIR=/certs
-        - DOCKER_CERT_PATH=/certs/client
         - FAKETIME=${PHP_FPM_FAKETIME}
       depends_on:
         - workspace
       networks:
         - backend
-      links:
-        - docker-in-docker
 
 ### PHP Worker ############################################
     php-worker:
@@ -87,10 +69,17 @@ services:
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./php-worker/supervisord.d:/etc/supervisord.d
+        - ./php-worker/supervisord.conf:/etc/supervisord.conf
       depends_on:
         - workspace
       extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
+        - "homestead.linde:172.20.0.1"
+        - "homestead.linde.fastapi:172.20.0.1"
+        - "homestead.hbsd:172.20.0.1"
+        - "homestead.watch:172.20.0.1"
+        - "homestead.watch.fastapi:172.20.0.1"
+        - "homestead.linde.cms:172.20.0.1"
+        - "homestead.td:172.20.0.1"
       networks:
         - backend
 
@@ -118,20 +107,6 @@ services:
         - ${DATA_PATH_HOST}/redis:/data
       ports:
         - "${REDIS_PORT}:6379"
-      networks:
-        - backend
-
-### Docker-in-Docker ################################################
-    docker-in-docker:
-      image: docker:19.03-dind
-      environment:
-        DOCKER_TLS_SAN: DNS:docker-in-docker      
-      privileged: true
-      volumes:
-        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-        - docker-in-docker:/certs/client
-      expose:
-        - 2375
       networks:
         - backend
 
