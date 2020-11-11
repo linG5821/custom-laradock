@@ -34,7 +34,6 @@ services:
         - "homestead.linde.cms:172.20.0.1"
         - "homestead.td:172.20.0.1"
       ports:
-        - "${WORKSPACE_SSH_PORT}:22"
         - "25080:25080"
         - "25081:25081"
       tty: true
