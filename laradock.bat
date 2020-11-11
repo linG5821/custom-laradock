@@ -3,14 +3,14 @@ SET cmd=%1
 SET target=%2
 
 IF "%cmd%"=="up" (
-    SET action=up -d workspace php-fpm nginx redis
+    SET action=up -d workspace php-fpm nginx redis php-worker
     IF DEFINED target (
         SET action=up -d %target%
     )
 )
 
 IF "%cmd%"=="stop" (
-    SET action=stop workspace php-fpm nginx redis
+    SET action=stop workspace php-fpm nginx redis php-worker
     IF DEFINED target (
         SET action=stop %target%
     )
@@ -37,6 +37,11 @@ IF "%cmd%"=="ep" (
 
 IF "%cmd%"=="en" (
     SET action=exec nginx bash
+
+)
+
+IF "%cmd%"=="epw" (
+    SET action=exec php-worker bash
 
 )
 

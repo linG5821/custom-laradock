@@ -3,18 +3,18 @@ cmd=$1
 target=$2
 
 if [ "$cmd" == "up" ]; then
-    action="up -d workspace php-fpm nginx redis"
+    action="up -d workspace php-fpm nginx redis php-worker"
     echo $action
     if [ -n "$target" ]; then
         action="up -d $target"
     fi
 elif [ "$cmd" == "build" ]; then
-    action="up --build -d workspace php-fpm nginx redis"
+    action="up --build -d workspace php-fpm nginx redis php-worker"
     if [ -n "$target" ]; then
         action="up --build -d $target"
     fi
 elif [ "$cmd" == "stop" ]; then
-    action="stop workspace php-fpm nginx redis"
+    action="stop workspace php-fpm nginx redis php-worker"
     if [ -n "$target" ]; then
         action="stop $target"
     fi
@@ -30,6 +30,8 @@ elif [ "$cmd" == "ep" ]; then
     action="exec php-fpm bash"
 elif [ "$cmd" == "en" ]; then
     action="exec nginx bash"
+elif [ "$cmd" == "epw" ]; then
+    action="exec php-worker bash"
 fi
 cd /data/laradock
 if [ -n "$action" ]; then
