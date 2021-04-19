@@ -14,7 +14,7 @@ services:
 
 ### Workspace Utilities ##################################
     workspace:
-      image: aidong-backend.tencentcloudcr.com/aidong/php-workspace:1.0.0
+      image: aidong-backend.tencentcloudcr.com/aidong/php-workspace:1.1.0
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./php-worker/supervisord.d:/etc/supervisord.d
@@ -41,10 +41,12 @@ services:
 
 ### PHP-FPM ##############################################
     php-fpm:
-      image: aidong-backend.tencentcloudcr.com/aidong/php-fpm:1.0.0
+      image: aidong-backend.tencentcloudcr.com/aidong/php-fpm:1.1.0
       volumes:
         - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      ports:
+        - "${PHP_FPM_XDEBUG_PORT}:9003"
       expose:
         - "9000"
       extra_hosts:
@@ -65,7 +67,7 @@ services:
 
 ### PHP Worker ############################################
     php-worker:
-      image: aidong-backend.tencentcloudcr.com/aidong/php-worker:1.0.0
+      image: aidong-backend.tencentcloudcr.com/aidong/php-worker:1.1.0
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ./php-worker/supervisord.d:/etc/supervisord.d
@@ -85,7 +87,7 @@ services:
 
 ### NGINX Server #########################################
     nginx:
-      image: aidong-backend.tencentcloudcr.com/aidong/php-nginx:1.0.0
+      image: aidong-backend.tencentcloudcr.com/aidong/php-nginx:1.1.0
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
