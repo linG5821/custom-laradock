@@ -20,7 +20,7 @@ services:
         - ./php-worker/supervisord.d:/etc/supervisord.d
         - ./php-worker/supervisord.conf:/etc/supervisord.conf
         - ./workspace/yaconf:/usr/local/etc/yaconf
-
+        - ./workspace/xdebug.ini:/etc/php/7.2/cli/conf.d/xdebug.ini
       extra_hosts:
         - "homestead.linde:172.20.0.1"
         - "homestead.linde.fastapi:172.20.0.1"
@@ -45,6 +45,7 @@ services:
       volumes:
         - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+        - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       ports:
         - "${PHP_FPM_XDEBUG_PORT}:9003"
       expose:
