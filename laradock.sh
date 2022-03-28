@@ -2,6 +2,17 @@
 cmd=$1
 target=$2
 
+realPath() {
+    [[ $1 =~ ^/ ]] && a=$1 || a=`pwd`/$1
+    while [ -h $a ]
+    do
+        b=`ls -ld $a|awk '{print $NF}'`
+        c=`ls -ld $a|awk '{print $(NF -2)}'`
+        [[ $b =~ ^/ ]] && a=$b || a=`dirname $c`/$b
+    done
+    echo $a
+}
+
 if [ "$cmd" == "up" ]; then
     action="up -d workspace php-fpm nginx redis php-worker"
     echo $action
@@ -33,7 +44,10 @@ elif [ "$cmd" == "en" ]; then
 elif [ "$cmd" == "epw" ]; then
     action="exec php-worker bash"
 fi
-cd /data/laradock
+binPath=$(cd `dirname $0`;pwd)/laradock
+shPath=`realPath $binPath`
+cd `dirname $shPath`
+
 if [ -n "$action" ]; then
     echo $action
     docker-compose $action
